@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setup(
   name = 'faces',
   packages = ['faces', 'faces.drawers'],
-  version = '0.1',
+  version = '0.2',
   license='MIT',
   description = 'A Python library for developing desktop apps in a reactive way',
   long_description=long_description,
