@@ -4,3 +4,4 @@ venv/
 .vscode
 MANIFEST
 dist/
+faces.egg-info/

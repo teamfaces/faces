@@ -1,15 +1,20 @@
+import setuptools
 from distutils.core import setup
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
   name = 'faces',
-  packages = ['faces'],
+  packages = ['faces', 'faces.drawers'],
   version = '0.1',
   license='MIT',
   description = 'A Python library for developing desktop apps in a reactive way',
+  long_description=long_description,
   author = 'Ricardo Gomes',
   author_email = 'desk467@gmail.com',
   url = 'https://github.com/teamfaces/faces',
-  download_url = 'https://github.com/teamfaces/faces/archive/v_01.tar.gz',
+  download_url = 'https://github.com/teamfaces/faces/releases/download/v0.1/faces-0.1.tar.gz',
   keywords = ['gui', 'desktop-apps', 'mobile'],
   install_requires=[
           'tinycss',
