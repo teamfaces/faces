@@ -14,7 +14,7 @@ setup(
   author = 'Ricardo Gomes',
   author_email = 'desk467@gmail.com',
   url = 'https://github.com/teamfaces/faces',
-  download_url = 'https://github.com/teamfaces/faces/releases/download/v0.1/faces-0.1.tar.gz',
+  download_url = 'https://github.com/teamfaces/faces/releases/download/v0.2/faces-0.2.tar.gz',
   keywords = ['gui', 'desktop-apps', 'mobile'],
   install_requires=[
           'tinycss',
