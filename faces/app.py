@@ -9,10 +9,13 @@ class App:
 
     '''
 
-    def __init__(self, controllers, entry_point):
+    def __init__(self, controllers, entry_point = None):
         self.controllers = controllers
+        self.controller_instances = {}
+
         self.entry_point = entry_point
         self.drawer = faces.drawers.TkinterDrawer()
+
 
     def start(self):
         '''
@@ -20,16 +23,19 @@ class App:
         creates a window for the Controller.
 
         If `entry_point` isn't found, it raises a `EntryPointNotFound`
+        If `entry_point` isn't set, the first controller will start application.
+
         '''
         for controller in self.controllers:
             instance = controller()
+            self.controller_instances[controller] = instance
             
             if instance.name == self.entry_point:
-                self._create_window_for(instance)
-                
-                return
+                return self._create_window_for(instance)
+
+
+        return self._create_window_for(self.controller_instances[self.controllers[0]])
         
-        raise faces.exceptions.EntryPointNotFound(self.entry_point)
 
     def _create_window_for(self, controller):
         '''
@@ -43,8 +49,7 @@ class App:
         self.drawer.finish_setup()
 
 
-
-def create_app(controllers, entry_point):
+def create_app(controllers, entry_point = None):
     '''
     `create_app` creates an App instance.
     '''

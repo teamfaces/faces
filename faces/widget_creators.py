@@ -14,7 +14,7 @@ def create_abstract_button(tag):
     return abstracts.Button(
         id=tag.attrib.get('id'),
         cls=tag.attrib.get('class'),
-        text=tag.text,
+        text=tag.text.strip(),
     )
 
 def create_abstract_text(tag):
@@ -24,5 +24,11 @@ def create_abstract_text(tag):
     return abstracts.Text(
         id=tag.attrib.get('id'),
         cls=tag.attrib.get('class'),
-        text=tag.text,
+        text=tag.text.strip(),
     )
+
+def create_abstract_screen(tag):
+    '''
+    Creates an instance of `AbstractScreen`
+    '''
+    return abstracts.Screen()

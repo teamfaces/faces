@@ -4,7 +4,10 @@ controller.py
 - Read XML and prepare tree of AbstracWidgets
 
 '''
-from faces import exceptions, widget_creators, AbstractRule
+from faces import exceptions, widget_creators
+
+from faces.abstract_rule import AbstractRule
+from faces.abstract_widgets_collection import AbstractWidgetsCollection
 
 import xml.etree.ElementTree as ET
 import tinycss
@@ -35,6 +38,7 @@ class Controller():
 
         '''
         return {
+            'screen': widget_creators.create_abstract_screen,
             'button': widget_creators.create_abstract_button,
             'text': widget_creators.create_abstract_text,
         }
@@ -53,18 +57,17 @@ class Controller():
 
         '''
         for element in self._xml_design_screen.iter():
-            if element.tag not in ('screen', 'style'):
+            if element.tag not in ('style'):
                 yield element, self.widget_creators.get(element.tag, self.widget_not_implemented)(element)
 
     @property
     def abstract_screen(self):
         '''
-        Returns a dictionary that maps an `xml.etree.ElementTree` with
-        an `AbstractWidget` instance.
-
+        Returns a AbstractScreen that maps an `xml.etree.ElementTree` with
+        an `AbstractWidgetsCollection` instance.
         '''
         if not self._abstract_screen:
-            self._abstract_screen = dict(
+            self._abstract_screen = AbstractWidgetsCollection(
                 self._create_tree_of_abstract_widgets())
 
         return self._abstract_screen
@@ -129,12 +132,24 @@ class Controller():
     @property
     def xml_design_root(self):
         '''
-        Parses the .design file and returns a xml.etree.ElementTree root element
+        Parses the .design file or a design string and returns a xml.etree.ElementTree root element
         '''
 
         if not self._xml_design_root:
-            tree = ET.parse(self.design_path)
-            self._xml_design_root = tree.getroot()
+            # Tries to load design from `design` propery
+
+            if getattr(self, 'design', None):
+                root = ET.fromstring(self.design)
+                self._xml_design_root = root
+            else:
+
+                # if `design` property isn't found, then tries to load from a .design file
+                if getattr(self, 'design_path', None):
+                    tree = ET.parse(self.design_path)
+                    self._xml_design_root = tree.getroot()
+                else:
+                    raise exceptions.DesignNotFound(self.name)
+
 
         return self._xml_design_root
 
