@@ -5,7 +5,7 @@ setup(
   packages = ['faces'],
   version = '0.1',
   license='MIT',
-  description = 'A Python library for developing desktop apps',
+  description = 'A Python library for developing desktop apps in a reactive way',
   author = 'Ricardo Gomes',
   author_email = 'desk467@gmail.com',
   url = 'https://github.com/teamfaces/faces',
