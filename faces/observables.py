@@ -14,16 +14,16 @@ class ObservableDict(UserDict):
 		self.setdefault(None)
 		self.listeners = defaultdict(list, {})
 
-	def add_listener(self, key, func):
-		self.listeners[key].append(func)
+	def add_listener(self, key, fn):
+		self.listeners[key].append(fn)
 	
-	def remove_listener(self, key, func):
+	def remove_listener(self, key, fn):
 		try:
-			self.listeners[key].delete(func)
+			self.listeners[key].delete(fn)
 		except KeyError:
 			raise exceptions.EventNotFound(f'on_change__{key}')
 		except ValueError:
-			raise exceptions.FunctionNotBindedForEvent(f'on_change__{key}', func)
+			raise exceptions.FunctionNotBindedForEvent(f'on_change__{key}', fn)
 
 	def __setitem__(self, key, new_value):
 		if key:

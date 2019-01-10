@@ -6,6 +6,14 @@ class Drawer:
 
 		'''
 		raise NotImplementedError
+	
+	def redraw(self):
+		'''
+		`redraw` is called when a widget needs to be redraw
+		on screen.
+		'''
+		raise NotImplementedError
+
 
 	def draw_screen(self, abstract_screen):
 		'''

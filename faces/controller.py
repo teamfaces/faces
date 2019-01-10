@@ -30,6 +30,8 @@ class Controller():
         self._css_style = None
         self._abstract_style = None
 
+        self.redraw_method = None
+
     @property
     def widget_creators(self):
         '''
@@ -58,7 +60,7 @@ class Controller():
         '''
         for element in self._xml_design_screen.iter():
             if element.tag not in ('style'):
-                yield element, self.widget_creators.get(element.tag, self.widget_not_implemented)(element)
+                yield element, self.widget_creators.get(element.tag, self.widget_not_implemented)(element, self.redraw_method)
 
     @property
     def abstract_screen(self):
@@ -97,7 +99,7 @@ class Controller():
         final_style = defaultdict(list, {})
 
         for _, widget in self.abstract_screen.items():
-            name, id, cls, _ = widget.get_base_attrs()
+            _, name, id, cls, _ = widget.get_base_attrs()
 
             final_style[widget] += self.find_style_for(f'#{id}')
             final_style[widget] += self.find_style_for(f'.{cls}')
@@ -122,7 +124,7 @@ class Controller():
         '''
         `css_style` returns a tinycss's set of tokens based on
         style text from .design file.
-        
+
         '''
         if not self._css_style:
             self._css_style = tinycss.make_parser().parse_stylesheet(self._xml_design_style.text)
@@ -149,7 +151,6 @@ class Controller():
                     self._xml_design_root = tree.getroot()
                 else:
                     raise exceptions.DesignNotFound(self.name)
-
 
         return self._xml_design_root
 
@@ -178,16 +179,18 @@ class Controller():
         Find a widget based on CSS selector.
         '''
 
-        for element, widget in self.abstract_screen:
+        for element, widget in self.abstract_screen.items():
 
             # Find based on id
             if selector.startswith('#'):
-                if f'{element.attrib.get("id", "")}' == selector:
+                id = selector[1:]
+                if f'{element.attrib.get("id", "")}' == id:
                     return widget
 
             # Find based on class name
             if selector.startswith('.'):
-                if f'{element.attrib.get("class", "")}' == selector:
+                cls = selector[1:]
+                if f'{element.attrib.get("class", "")}' == cls:
                     return widget
 
             # Find based on name

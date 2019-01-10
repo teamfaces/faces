@@ -47,8 +47,16 @@ class EventNotFound(Exception):
 
 
 class FunctionNotBindedForEvent(Exception):
-    def __init__(self, event_name, func):
+    def __init__(self, event_name, fn):
         Exception.__init__(
-            self, f'Function \'{func}\' not binded for event \'{event_name}\'.')
+            self, f'Function \'{fn}\' not binded for event \'{event_name}\'.')
         self.event_name = event_name
-        self.func = func
+        self.fn = fn
+
+class EventNotImplemented(Exception):
+    def __init__(self, event_name, widget, fn):
+        Exception.__init__(
+            self, f'Event \'{event_name}\' not implemented on Drawer.')
+        self.event_name = event_name
+        self.widget = widget
+        self.fn = fn

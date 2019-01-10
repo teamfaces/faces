@@ -22,19 +22,28 @@ class App:
         This method searches for an `entry_point` and if found, 
         creates a window for the Controller.
 
-        If `entry_point` isn't found, it raises a `EntryPointNotFound`
+        If `entry_point` isn't found, it raises an `EntryPointNotFound`
         If `entry_point` isn't set, the first controller will start application.
 
         '''
         for controller in self.controllers:
             instance = controller()
+
+            instance.redraw_method = self.drawer.redraw
+
             self.controller_instances[controller] = instance
             
             if instance.name == self.entry_point:
-                return self._create_window_for(instance)
+                self._create_window_for(instance)
+                
+                instance.on_start()
+                self.drawer.finish_setup()
 
-
-        return self._create_window_for(self.controller_instances[self.controllers[0]])
+        self._create_window_for(self.controller_instances[self.controllers[0]])
+        
+        instance.on_start()
+        self.drawer.apply_events(instance.abstract_screen)
+        self.drawer.finish_setup()
         
 
     def _create_window_for(self, controller):
@@ -45,8 +54,6 @@ class App:
 
         self.drawer.draw_screen(controller.title, controller.abstract_screen)
         self.drawer.apply_style(controller.abstract_style)
-
-        self.drawer.finish_setup()
 
 
 def create_app(controllers, entry_point = None):

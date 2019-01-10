@@ -21,11 +21,37 @@ class TkinterScreen(tkinter.Frame):
     def draw_widgets(self, widgets):
         for element, widget in widgets.items():
             tkinter_widget = self.widget_drawers.get(
-                widget.name, self.raise_not_implemented)(widget)
+                widget.name, self.raise_widget_not_implemented)(widget)
 
             self.abstract_mapping_with_tk_widget[widget] = tkinter_widget
 
             tkinter_widget.pack()
+
+    # @todo: Refactor...
+    def redraw(self, widget):
+        # Recreates widget 
+        old_tk_widget = self.abstract_mapping_with_tk_widget[widget]
+
+        new_tk_widget = self.draw_button(widget)
+
+        new_tk_widget.pack()
+
+        # Reapplies a style
+
+        styles_to_apply = self.abstract_style_with_tk_widget[old_tk_widget]
+
+        for style in styles_to_apply:
+            self.apply_style_for_widget(
+                new_tk_widget, style.name, style.value.as_css())
+        
+        old_tk_widget.destroy()
+
+        self.abstract_mapping_with_tk_widget[widget] = new_tk_widget
+        self.abstract_style_with_tk_widget[new_tk_widget] = styles_to_apply
+
+        # Reapplies events
+        self.apply_events_for_widget(widget)
+        
 
     def draw_screen(self, widget):
         return self
@@ -48,7 +74,7 @@ class TkinterScreen(tkinter.Frame):
             'text': self.draw_text,
         }
 
-    def raise_not_implemented(self, widget):
+    def raise_widget_not_implemented(self, widget):
         raise exceptions.WidgetNotImplementedOnDrawer(widget)
 
     # Styling
@@ -67,9 +93,22 @@ class TkinterScreen(tkinter.Frame):
 
     def apply_style_for_widget(self, widget, decl_name, decl_value):
         self.style_appliers.get(
-            decl_name, self.raise_not_implemented)(widget, decl_name, decl_value)
+            decl_name, self.raise_style_not_implemented)(widget, decl_name, decl_value)
 
     # Style appliers
+
+    @property
+    def style_appliers(self):
+        return {
+            'background-color': self.apply_background_color,
+            'width': self.apply_width,
+            'height': self.apply_height,
+            'font-family': self.apply_font_family,
+            'font-size': self.apply_font_size,
+            'font': self.apply_font,
+            'color': self.apply_color,
+            'size': self.apply_size,
+        }
 
     def apply_background_color(self, widget, rule, value):
         widget.config(bg=value)
@@ -103,27 +142,45 @@ class TkinterScreen(tkinter.Frame):
         if len(value) == 2:
             font_size, font_family = value
             widget.config(font=(font_family, font_size))
-        
+
         if len(value) == 3:
             font_weight, font_size, font_family = value
             widget.config(font=(font_family, font_size, font_weight))
 
-
     def apply_color(self, widget, rule, value):
         widget.config(fg=value)
 
-    @property
-    def style_appliers(self):
-        return {
-            'background-color': self.apply_background_color,
-            'width': self.apply_width,
-            'height': self.apply_height,
-            'font-family': self.apply_font_family,
-            'font-size': self.apply_font_size,
-            'font': self.apply_font,
-            'color': self.apply_color,
-            'size': self.apply_size,
-        }
-
-    def raise_not_implemented(self, widget, decl_name, decl_value):
+    def raise_style_not_implemented(self, widget, decl_name, decl_value):
         raise exceptions.StyleNotImplemented(widget, decl_name)
+
+    def apply_events_for_widget(self, widget):
+        tk_widget = self.abstract_mapping_with_tk_widget[widget]
+
+        for event_name, fns in widget.events.items():
+            for fn in fns:
+                self.event_appliers.get(event_name, self.raise_event_not_implemented)(
+                    event_name, tk_widget, fn)
+
+    def apply_events(self, screen):
+        for _, widget in screen.items():
+            self.apply_events_for_widget(widget)
+
+
+    # Event appliers
+
+    @property
+    def event_appliers(self):
+        return {
+            'click': self.apply_evt_click,
+        }
+    
+
+    def apply_evt_click(self, event_name, tk_widget, fn):
+        def evt_click(event):
+            fn()
+        
+        tk_widget.bind('<Button-1>', evt_click)
+
+
+    def raise_event_not_implemented():
+        raise exceptions.EventNotImplemented(event_name, tk_widget, fn)
